@@ -290,37 +290,44 @@ function render(){
 }
 function update(){const p=selected();if(!p)return;crew();totals()}
 function syncRoleForm(){
- const role=$("personRole").value;
+ const role=$("personRole").value,expense=expenseRole(role);
  $("newPersonRateField").classList.toggle("hidden",role!=="assistant");
- $("roleRateExplanation").textContent=role==="assistant"?"La tarifa por hora se puede editar para cada asistente.":role==="camera"?"$60.000/h.": "$100.000 / 8 h = $12.500/h.";
+ $("newExpenseRateField").classList.toggle("hidden",!expense);
+ $("roleRateExplanation").textContent=role==="assistant"?"Tarifa individual editable.":role==="camera"?"$60.000 por hora.":role==="edit"?"$100.000 / 8 horas.":role==="transport"?"Valor por día.":["food","lodging"].includes(role)?"Valor × cantidad × personas.":"Valor por unidad.";
 }
 function openPerson(p=null){
  editing=p?.id||null;
- $("personDialogTitle").textContent=p?"Editar profesional":"Nuevo profesional";
+ $("personDialogTitle").textContent=p?"Editar concepto":"Nuevo concepto";
  $("personName").value=p?.name||"";
  $("personRole").value=p?.role||"assistant";
- $("personRate").value=p?.rate??15000;
+ $("personRate").value=p?.role==="assistant"?p.rate:15000;
+ $("personExpenseRate").value=p&&expenseRole(p.role)?p.rate:0;
  $("deletePerson").classList.toggle("hidden",!p||state.people.length<=1);
- syncRoleForm();
- $("personDialog").showModal();
+ syncRoleForm();$("personDialog").showModal();
 }
 function savePerson(e){
- e.preventDefault();let name=cleanName($("personName").value),role=$("personRole").value;
- const value=Number($("personRate").value);
- if(!name){toast("Escribe un nombre para el profesional.");$("personName").focus();return}
+ e.preventDefault();
+ const name=cleanName($("personName").value),role=$("personRole").value;
+ const value=role==="assistant"?Number($("personRate").value):Number($("personExpenseRate").value);
+ if(!name){toast("Escribe un nombre o descripción.");$("personName").focus();return}
  if(!roleNames[role])return;
- if(role==="assistant"&&(!Number.isFinite(value)||value<0)){toast("Introduce una tarifa válida.");return}
+ if((role==="assistant"||expenseRole(role))&&(!Number.isFinite(value)||value<0||value>1000000000)){toast("Introduce un valor válido.");return}
+ const newRate=role==="assistant"||expenseRole(role)?sane(value):fixedRates[role];
  if(editing){
-  const p=state.people.find(x=>x.id===editing);
-  if(!p)return;
-  p.name=name;p.role=role;p.rate=role==="assistant"?value:fixedRates[role];
+  const p=state.people.find(x=>x.id===editing);if(!p)return;
+  const wasExpense=expenseRole(p.role);
+  p.name=name;p.role=role;p.rate=newRate;
+  if(expenseRole(role)){
+   if(!wasExpense){p.quantity=1;p.persons=1}
+   p.rows=[];
+  }else if(wasExpense){p.rows=[{id:uid(),type:0,hours:role==="edit"?8:2}]}
   state.selected=p.id;
  }else{
-  const p={id:uid(),name,role,rate:role==="assistant"?value:fixedRates[role],rows:[{id:uid(),type:0,hours:role==="edit"?8:2}]};
+  const p={id:uid(),name,role,rate:newRate,quantity:1,persons:1,rows:expenseRole(role)?[]:[{id:uid(),type:0,hours:role==="edit"?8:2}]};
   state.people.push(p);state.selected=p.id;
  }
  filter="all";$("roleFilter").value="all";
- $("personDialog").close();render();toast(editing?"Profesional actualizado.":"Profesional agregado.");
+ $("personDialog").close();revealedPerson=null;render();toast(editing?"Concepto actualizado.":"Concepto agregado.");
 }
 $("roleFilter").addEventListener("change",e=>{filter=e.target.value;const visible=state.people.filter(p=>filter==="all"||p.role===filter);if(visible.length&&!visible.some(p=>p.id===state.selected))state.selected=visible[0].id;render()});
 $("addPerson").addEventListener("click",()=>openPerson());
@@ -330,11 +337,28 @@ $("personForm").addEventListener("submit",savePerson);
 $("closePerson").addEventListener("click",()=>$("personDialog").close());
 $("cancelPerson").addEventListener("click",()=>$("personDialog").close());
 $("deletePerson").addEventListener("click",()=>{if(state.people.length===1)return;const p=state.people.find(x=>x.id===editing);$("personDialog").close();if(p)deleteCrewPerson(p.id)});
-$("base").addEventListener("input",e=>{const p=selected();if(p.role!=="assistant")return;p.rate=Math.max(0,Number(e.target.value)||0);update()});
-$("add").addEventListener("click",()=>{const p=selected();p.rows.push({id:uid(),type:1,hours:1});render();$("rows").lastElementChild.querySelector("select").focus()});
-$("reset").addEventListener("click",()=>{if(!confirm("¿Reiniciar jornadas y profesionales?"))return;state.people=[defaultPerson()];state.selected=state.people[0].id;filter="all";$("roleFilter").value="all";render();toast("Calculadora reiniciada.")});
+$("base").addEventListener("input",e=>{const p=selected();if(p.role!=="assistant")return;p.rate=sane(e.target.value);update()});
+$("expenseRate").addEventListener("input",e=>{const p=selected();if(!expenseRole(p.role))return;p.rate=sane(e.target.value);$("expenseFormula").textContent=qty(p.quantity??1)+(p.role==="transport"?" días":(["food","lodging"].includes(p.role)?" × "+qty(p.persons??1)+" personas":" unidades"))+" × "+money(rate(p));update()});
+$("expenseQuantity").addEventListener("input",e=>{const p=selected();if(!expenseRole(p.role))return;p.quantity=saneCount(e.target.value);update();$("expenseFormula").textContent=qty(p.quantity)+(p.role==="transport"?" días":(["food","lodging"].includes(p.role)?" × "+qty(p.persons??1)+" personas":" unidades"))+" × "+money(rate(p))});
+$("expensePersons").addEventListener("input",e=>{const p=selected();if(!["food","lodging"].includes(p.role))return;p.persons=Math.max(1,saneCount(e.target.value));update();$("expenseFormula").textContent=qty(p.quantity)+" × "+qty(p.persons)+" personas × "+money(rate(p))});
+$("add").addEventListener("click",()=>{const p=selected();if(expenseRole(p.role))return;p.rows.push({id:uid(),type:1,hours:1});render();$("rows").lastElementChild.querySelector("select").focus()});
+$("reset").addEventListener("click",()=>{if(!confirm("¿Reiniciar todo el presupuesto?"))return;state.people=[defaultPerson()];state.selected=state.people[0].id;filter="all";$("roleFilter").value="all";render();toast("Calculadora reiniciada.")});
 $("print").addEventListener("click",()=>window.print());
-$("copy").addEventListener("click",async()=>{const parts=state.people.map(p=>p.name+" · "+roleNames[p.role]+" · "+money(rate(p))+"/h\n"+p.rows.map((r,i)=>(i+1)+". "+types[r.type][0]+": "+qty(r.hours)+" h × "+money(rate(p)*(1+types[r.type][1]))+" = "+money(subtotal(p,r))).join("\n")+"\nSubtotal: "+money(personSum(p)));const summary="BRANLY RUIZ · EQUIPO AUDIOVISUAL\n\n"+parts.join("\n\n")+"\n\nTOTAL PRODUCCIÓN: "+money(state.people.reduce((s,p)=>s+personSum(p),0));try{await navigator.clipboard.writeText(summary);toast("Resumen copiado.")}catch{const ta=document.createElement("textarea");ta.value=summary;document.body.appendChild(ta);ta.select();const ok=document.execCommand("copy");ta.remove();toast(ok?"Resumen copiado.":"No se pudo copiar.")}});
+$("copy").addEventListener("click",async()=>{
+ const parts=state.people.map(p=>{
+  const title=p.name+" · "+roleNames[p.role];
+  if(expenseRole(p.role)){
+   const formula=qty(p.quantity??1)+" "+quantities[p.role].toLowerCase()+(["food","lodging"].includes(p.role)?" × "+qty(p.persons??1)+" personas":"")+" × "+money(rate(p));
+   return title+"\n"+formula+"\nSubtotal: "+money(personSum(p));
+  }
+  return title+" · "+money(rate(p))+"/h\n"+p.rows.map((r,i)=>(i+1)+". "+types[r.type][0]+": "+qty(r.hours)+" h × "+money(rate(p)*(1+types[r.type][1]))+" = "+money(subtotal(p,r))).join("\n")+"\nSubtotal: "+money(personSum(p));
+ });
+ const summary="BRANLY RUIZ · PRESUPUESTO\n\n"+parts.join("\n\n")+"\n\nTOTAL PRODUCCIÓN: "+money(state.people.reduce((sum,p)=>sum+personSum(p),0));
+ try{await navigator.clipboard.writeText(summary);toast("Resumen copiado.")}catch{
+  const ta=document.createElement("textarea");ta.value=summary;document.body.appendChild(ta);ta.select();
+  const ok=document.execCommand("copy");ta.remove();toast(ok?"Resumen copiado.":"No se pudo copiar.");
+ }
+});
 if("serviceWorker" in navigator&&(location.protocol==="https:"||location.hostname==="localhost"))window.addEventListener("load",()=>navigator.serviceWorker.register("./sw.js").catch(()=>{}));
 render();
 })();
