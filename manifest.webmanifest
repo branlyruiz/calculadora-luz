@@ -1,7 +1,7 @@
 {
-  "name": "BRANLY RUIZ · Asistencia de luz",
-  "short_name": "BR · Luz",
-  "description": "Calculadora personal de asistencia de iluminación",
+  "name": "BRANLY RUIZ · Tarifas de producción",
+  "short_name": "BR · Equipo",
+  "description": "Calculadora de jornadas y recargos de profesionales audiovisuales",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
