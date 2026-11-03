@@ -151,7 +151,13 @@ header{padding:2px 2px 15px}.identity{gap:9px}.mark{width:38px;height:38px;borde
 (()=>{
 "use strict";
 const types=[["Ordinaria diurna",0,"D"],["Ordinaria nocturna",.35,"N"],["Dominical / festiva diurna",.9,"F"],["Dominical / festiva nocturna",1.25,"FN"],["Extra diurna",.25,"ED"],["Extra nocturna",.75,"EN"],["Extra dominical / festiva diurna",1.15,"EFD"],["Extra dominical / festiva nocturna",1.65,"EFN"]];
-const roleNames={assistant:"Asistente de luz",camera:"Camarógrafo",edit:"Edición"};
+const roleNames={assistant:"Asistente de luz",camera:"Camarógrafo",edit:"Edición",transport:"Transporte",food:"Alimentación",lodging:"Hospedaje",perdiem:"Viáticos",supplies:"Insumos"};
+const expenseRoles=["transport","food","lodging","perdiem","supplies"];
+const expenseRole=role=>expenseRoles.includes(role);
+const quantities={transport:"Días",food:"Cantidad",lodging:"Cantidad",perdiem:"Unidades",supplies:"Unidades"};
+const symbols={assistant:"LU",camera:"CAM",edit:"ED",transport:"TR",food:"AL",lodging:"HO",perdiem:"VI",supplies:"IN"};
+const sane=n=>Number.isFinite(Number(n))?Math.max(0,Math.min(1000000000,Number(n))):0;
+const saneCount=n=>Number.isFinite(Number(n))?Math.max(0,Math.min(100000,Number(n))):0;
 const fixedRates={camera:60000,edit:12500};
 const KEY="branly_ruiz_equipo_v4",OLD=["branly_ruiz_luz_v3","luz_calculadora_v2"];
 const $=id=>document.getElementById(id);
@@ -166,8 +172,14 @@ state.selected=state.people[0].id;
 try{
  const saved=JSON.parse(localStorage.getItem(KEY)||"null");
  if(saved&&Array.isArray(saved.people)&&saved.people.length){
-  let people=saved.people.slice(0,150).filter(p=>p&&roleNames[p.role]).map(p=>({id:uid(),name:cleanName(p.name)||roleNames[p.role],role:p.role,rate:p.role==="assistant"?Math.max(0,Number(p.rate)||0):fixedRates[p.role],rows:validRows(p.rows)}));
-  people.forEach(p=>{if(!p.rows.length)p.rows=[{id:uid(),type:0,hours:0}]});
+  let people=saved.people.slice(0,150).filter(p=>p&&roleNames[p.role]).map(p=>({
+   id:uid(),name:cleanName(p.name)||roleNames[p.role],role:p.role,
+   rate:p.role==="assistant"?sane(p.rate):expenseRole(p.role)?sane(p.rate):fixedRates[p.role],
+   quantity:expenseRole(p.role)?saneCount(p.quantity??1):1,
+   persons:["food","lodging"].includes(p.role)?Math.max(1,saneCount(p.persons??1)):1,
+   rows:expenseRole(p.role)?[]:validRows(p.rows)
+  }));
+  people.forEach(p=>{if(!expenseRole(p.role)&&!p.rows.length)p.rows=[{id:uid(),type:0,hours:0}]});
   if(people.length){state.people=people;state.selected=people[0].id}
  }else{
   const older=OLD.map(key=>{try{return JSON.parse(localStorage.getItem(key)||"null")}catch{return null}}).find(v=>v&&Number.isFinite(v.base)&&Array.isArray(v.rows));
@@ -175,10 +187,10 @@ try{
  }
 }catch(err){console.warn("No se pudo leer el historial",err)}
 const selected=()=>state.people.find(p=>p.id===state.selected)||state.people[0];
-const rate=p=>p.role==="assistant"?p.rate:fixedRates[p.role];
+const rate=p=>p.role==="assistant"||expenseRole(p.role)?sane(p.rate):fixedRates[p.role];
 const subtotal=(p,r)=>rate(p)*(1+types[r.type][1])*r.hours;
-const personSum=p=>p.rows.reduce((s,r)=>s+subtotal(p,r),0);
-const hours=p=>p.rows.reduce((s,r)=>s+r.hours,0);
+const personSum=p=>expenseRole(p.role)?rate(p)*saneCount(p.quantity??1)*(["food","lodging"].includes(p.role)?Math.max(1,saneCount(p.persons??1)):1):p.rows.reduce((s,r)=>s+subtotal(p,r),0);
+const hours=p=>expenseRole(p.role)?0:p.rows.reduce((s,r)=>s+r.hours,0);
 const persist=()=>{try{localStorage.setItem(KEY,JSON.stringify({people:state.people}))}catch{}};
 function toast(s){$("toast").textContent=s}
 function totals(){
