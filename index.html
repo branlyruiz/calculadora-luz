@@ -6,12 +6,12 @@
 <meta name="theme-color" content="#f7f6f3">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
-<meta name="apple-mobile-web-app-title" content="BR · Luz">
-<meta name="description" content="Calculadora de asistencia de iluminación de BRANLY RUIZ. Funciona sin conexión.">
+<meta name="apple-mobile-web-app-title" content="BR · Equipo">
+<meta name="description" content="Calculadora de personal audiovisual de BRANLY RUIZ. Funciona sin conexión.">
 <link rel="manifest" href="./manifest.webmanifest">
 <link rel="apple-touch-icon" href="./icon.svg">
 <link rel="icon" type="image/svg+xml" href="./icon.svg">
-<title>BRANLY RUIZ · Asistencia de luz</title>
+<title>BRANLY RUIZ · Tarifas de producción</title>
 <style>
 :root{color-scheme:light;--bg:#f7f6f3;--panel:#fff;--ink:#242421;--muted:#8e8c87;--border:#e8e6e0;--gold:#bb895f;--soft:#f5ece5;--shadow:0 12px 40px rgba(35,30,22,.035)}
 *{box-sizing:border-box}html{-webkit-font-smoothing:antialiased;font-family:Inter,-apple-system,BlinkMacSystemFont,"SF Pro Display","Segoe UI",sans-serif}body{margin:0;background:var(--bg);color:var(--ink);min-height:100dvh}input,select,button{font:inherit}button{cursor:pointer}button:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid #d2ad90;outline-offset:3px}
@@ -24,41 +24,211 @@ main{max-width:660px;margin:auto;padding:max(26px,env(safe-area-inset-top)) 16px
 .actions{display:flex;gap:10px;margin-top:17px}.action{flex:1;min-width:0;border:1px solid var(--border);border-radius:15px;background:white;padding:14px 10px;color:#403c37;font-size:13px;font-weight:730}.action.primary{background:#ece3db;border-color:#ece3db;color:#765338}.action:active,.add:active{transform:scale(.99)}.reset{display:block;margin:13px auto 0;border:0;background:transparent;color:#a39b94;font-size:12px;padding:8px}.note{padding:14px 5px 0;color:#98938b;font-size:11px;line-height:1.65}.note b{color:#746f68}.toast{min-height:16px;font-size:12px;color:#4f8763;text-align:center;margin-top:10px}.footer{text-align:center;font-size:11px;color:#b5afa9;margin-top:25px;letter-spacing:.1em}
 @media(max-width:420px){main{padding-left:13px;padding-right:13px}.card{padding:19px}.rows{padding:4px 12px}.hour-row{grid-template-columns:38px minmax(0,1fr) 62px 24px;gap:8px}.symbol{width:38px;height:38px;border-radius:13px}.type-col select{font-size:13px}.hours-col input{font-size:21px}.remove{width:24px;height:27px}.line-total{grid-column:2 / 4}.brand{font-size:11px}}
 @media print{body{background:#fff}main{max-width:100%;padding:0}.card{box-shadow:none}.actions,.add,.reset,.remove,.offline,.note{display:none!important}.hour-row{break-inside:avoid}}
+
+/* V4 - diseño responsive para equipos de producción */
+:root{--bg:#f6f6f4;--ink:#222a32;--muted:#85909b;--border:#e8ebed;--panel:#fff;--accent:#b68157;--shadow:0 9px 30px rgba(29,41,54,.035)}
+main{max-width:720px;padding:calc(18px + env(safe-area-inset-top)) 16px calc(40px + env(safe-area-inset-bottom))}
+header{padding:4px 2px 18px}.hero{padding:0 2px 17px}.hero h1{font-size:clamp(30px,6vw,40px);line-height:1.06;margin:8px 0}.hero p{font-size:13px}
+.card{border-radius:21px;padding:17px;margin-bottom:12px}.section-header{margin:22px 2px 11px}.section-header h2{font-size:18px}
+.crew-toolbar{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:12px}
+.filter-label{display:flex;align-items:center;gap:8px;color:#7d8792;font-weight:700;font-size:12px}
+.filter-label select{border:1px solid var(--border);border-radius:12px;background:white;padding:10px 27px 10px 12px;color:var(--ink);min-width:124px}
+.crew-list{display:grid;gap:9px}
+.person-card{display:grid;grid-template-columns:40px minmax(0,1fr) auto;align-items:center;gap:11px;width:100%;text-align:left;border:1px solid var(--border);background:white;border-radius:17px;padding:12px;color:var(--ink);box-shadow:var(--shadow);min-height:68px}
+.person-card.selected{border-color:#d8a77c;background:#fffbf7;box-shadow:inset 0 0 0 1px #eed5bf}
+.person-symbol{width:40px;height:40px;border-radius:13px;background:#f4e8df;color:#ad7245;font-weight:850;display:grid;place-items:center;font-size:14px}
+.person-card[data-role="camera"] .person-symbol{background:#eaf0f8;color:#5e7897}
+.person-card[data-role="edit"] .person-symbol{background:#eaf2e9;color:#648367}
+.person-main{min-width:0}.person-main strong{display:block;font-size:14px;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}.person-main small{display:block;color:var(--muted);font-size:11px;margin-top:4px}
+.person-price{font-size:14px;font-weight:800;white-space:nowrap;font-variant-numeric:tabular-nums}
+.toolbar-add,.small-btn{border:0;border-radius:12px;background:#eee5dc;color:#895e3e;font-weight:800;padding:10px 13px;font-size:12px;white-space:nowrap}
+.empty-filter{color:var(--muted);font-size:12px;padding:15px;text-align:center;border:1px dashed var(--border);border-radius:16px}
+.person-detail-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:1px 1px 14px}
+.person-detail-head h2{font-size:17px;margin:0;letter-spacing:-.035em}
+.person-detail-head p{font-size:11px;color:var(--muted);margin:5px 0 0}
+.person-detail-head .edit-name{border:1px solid var(--border);background:white;border-radius:11px;padding:9px 12px;color:#68717d;font-weight:700;font-size:12px}
+.tariff-card .card-title{margin-bottom:8px}.tariff-note{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--muted);margin-top:9px}
+.tariff-number{font-size:clamp(28px,6vw,36px);font-weight:820;letter-spacing:-.05em}
+.tariff-fixed{display:flex;justify-content:space-between;align-items:baseline;gap:8px}
+.tariff-fixed>span{font-size:12px;color:#9a9b98}
+.base-control input{font-size:34px}
+.rate-tag{display:inline-block;background:#edf3ef;border-radius:9px;color:#5f8066;padding:6px 9px;font-size:11px;font-weight:800}
+.rows{padding:3px 15px}.hour-row{grid-template-columns:39px minmax(0,1fr) 69px 28px;gap:10px;padding:13px 0}.symbol{height:39px;width:39px;border-radius:12px}.hour-row .line-total{margin-top:0}.type-col select{font-size:13px}.hours-col input{font-size:21px}
+.add{margin:11px 0 15px;padding:13px;border-radius:15px}
+.person-total{display:flex;justify-content:space-between;gap:12px;align-items:center;border:1px solid var(--border);border-radius:17px;background:white;padding:15px 17px;margin-bottom:12px}
+.person-total span{font-size:12px;color:var(--muted);font-weight:700}.person-total strong{font-size:21px;font-weight:850;letter-spacing:-.04em}
+.total-card{border-radius:22px;padding:20px 21px;background:#253044}.total-card .card-title{margin-bottom:8px}.total-amount{font-size:clamp(30px,8vw,43px)}.total-meta{margin-top:9px}
+.actions{margin-top:12px}.action{border-radius:13px;padding:13px}.note{font-size:11px}.reset{margin-top:7px}
+.dialog{border:0;border-radius:24px;padding:0;width:min(92vw,450px);max-height:85dvh;box-shadow:0 22px 70px #15213555;color:var(--ink)}
+.dialog::backdrop{background:#151d2c99;backdrop-filter:blur(3px)}
+.dialog-body{padding:21px}.dialog-top{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:18px}
+.dialog-top h2{font-size:22px;letter-spacing:-.045em;margin:0}.dialog-close{border:0;background:#f2f4f6;border-radius:10px;width:33px;height:33px;font-size:20px}
+.field{display:flex;flex-direction:column;gap:7px;font-size:12px;color:#697586;font-weight:750;margin-bottom:15px}
+.field input,.field select{border:1px solid #e3e8ed;background:#fafbfc;border-radius:12px;padding:12px;color:var(--ink);width:100%;font-size:15px}
+.field-note{color:#87919c;font-size:12px;line-height:1.5;margin:0 0 18px}
+.dialog-actions{display:flex;gap:9px}.dialog-actions button{flex:1;border:0;border-radius:13px;padding:13px;font-size:13px;font-weight:800}
+.dialog-actions .cancel{background:#f2f4f6;color:#708092}.dialog-actions .save{background:#273146;color:white}
+.dialog-actions .danger{background:#fff0ed;color:#ae5b54}
+.hidden{display:none!important}
+@media(max-width:420px){main{padding-left:13px;padding-right:13px}.card{padding:15px}.rows{padding:2px 11px}.hour-row{grid-template-columns:34px minmax(0,1fr) 62px 24px;gap:7px}.symbol{height:34px;width:34px}.type-col select{font-size:12px}.person-card{padding:10px}.person-price{font-size:13px}.filter-label select{min-width:105px}.crew-toolbar{gap:6px}.toolbar-add{padding:10px}.total-card{padding:19px}}
+@media print{.crew-toolbar,.crew-list,.person-detail-head .edit-name,.dialog,.person-total,.offline{display:none!important}}
 </style>
 </head>
 <body>
 <main>
 <header><div class="identity"><div class="mark" aria-hidden="true">BR</div><div><div class="brand">BRANLY RUIZ</div><div class="brand-sub">Herramientas de producción</div></div></div><span class="offline">● Sin conexión</span></header>
-<div class="hero"><div class="eyebrow">Producción audiovisual</div><h1>Asistencia<br>de luz.</h1><p>Un cálculo claro por jornada. Agrega horas y recargos, sin complicaciones.</p></div>
-<section class="card" aria-label="Valor hora"><h2 class="card-title">Valor hora</h2><div class="base-control"><span class="dollar">$</span><input id="base" type="number" inputmode="decimal" min="0" step="500" value="15000" aria-label="Valor hora base en pesos colombianos"><span class="unit">COP / h</span></div><p class="help">Tarifa editable. Los totales cambian automáticamente.</p></section>
-<div class="section-header"><h2>Detalle de la jornada</h2><span id="count">1 línea</span></div>
-<section class="card rows" aria-label="Tipos de horas" id="rows"></section>
+<div class="hero"><div class="eyebrow">BRANLY RUIZ · PRODUCCIÓN</div><h1>Tarifas de equipo.</h1><p>Calcula las jornadas de iluminación, cámara y edición con recargos, personas y un total unificado.</p></div>
+<div class="section-header"><h2>Profesionales</h2><span id="crewCount">1 persona</span></div>
+<div class="crew-toolbar"><label class="filter-label" for="roleFilter">Filtrar <select id="roleFilter"><option value="all">Todos los roles</option><option value="assistant">Asistente de luz</option><option value="camera">Camarógrafo</option><option value="edit">Edición</option></select></label><button class="toolbar-add" id="addPerson" type="button">+ Agregar persona</button></div>
+<div class="crew-list" id="crewList" aria-label="Profesionales registrados"></div>
+<div class="section-header"><h2>Detalle de jornada</h2><span id="count">1 línea</span></div>
+<div class="person-detail-head"><div><h2 id="selectedName">Asistente de luz 1</h2><p id="selectedRole">Asistente de luz</p></div><button type="button" id="editPerson" class="edit-name">Editar persona</button></div>
+<section class="card tariff-card" aria-label="Tarifa del profesional"><h2 class="card-title">Valor hora</h2>
+<div id="assistantTariff" class="base-control"><span class="dollar">$</span><input id="base" type="number" inputmode="numeric" min="0" step="500" value="15000" aria-label="Valor hora asistente"><span class="unit">COP / h</span></div>
+<div id="fixedTariff" class="hidden"><div class="tariff-fixed"><strong class="tariff-number" id="fixedRate">$ 60.000</strong><span>COP / hora</span></div><div class="tariff-note"><span class="rate-tag">Tarifa fija por rol</span><span id="fixedRateNote"></span></div></div>
+<p class="help" id="tariffHelp">La tarifa del asistente es editable.</p></section>
+<section class="card rows" id="rows" aria-label="Bloques de horas y recargos"></section>
 <button id="add" class="add" type="button"><span class="plus">＋</span> Agregar otro tipo de hora</button>
-<section class="card total-card" aria-live="polite"><h2 class="card-title">Valor asistencia</h2><div class="total-amount" id="total">$ 30.000</div><div class="total-meta"><strong id="totalHours">2</strong> horas · <strong id="totalLines">1</strong> tipo(s) de hora</div></section>
+<section class="person-total"><span>Subtotal de esta persona</span><strong id="personTotal">$ 30.000</strong></section>
+<section class="card total-card" aria-live="polite"><h2 class="card-title">Total de la producción</h2><div class="total-amount" id="total">$ 30.000</div><div class="total-meta"><strong id="totalPeople">1</strong> profesional(es) · <strong id="totalHours">2</strong> horas de trabajo</div></section>
 <div class="actions"><button class="action primary" id="copy" type="button">Copiar resumen</button><button class="action" id="print" type="button">Guardar PDF</button></div>
-<button class="reset" id="reset" type="button">Reiniciar calculadora</button><div class="toast" id="toast" role="status"></div>
-<div class="note"><b>Recargos de referencia · Colombia, noviembre 2026.</b> Nocturno +35 %, dominical/festivo +90 %, extras +25 % / +75 % y sus combinaciones. El cálculo de horas extras depende de la jornada laboral aplicable; una jornada larga no debe tratarse automáticamente como horas ordinarias. Este tarifario orientativo no sustituye una liquidación laboral ni aplica necesariamente a contratos independientes. No incluye prestaciones, aportes o desplazamientos.</div>
+<button class="reset" id="reset" type="button">Reiniciar jornadas</button><div class="toast" id="toast" role="status" aria-live="polite"></div>
+<div class="note"><b>Recargos orientativos · Colombia, noviembre 2026.</b> Nocturno +35 %, dominical/festivo +90 %, extras +25 % / +75 % y sus combinaciones. El cálculo de horas extras depende de la jornada laboral aplicable; una jornada larga no debe tratarse automáticamente como horas ordinarias. Este tarifario orientativo no sustituye una liquidación laboral ni aplica necesariamente a contratos independientes. Se asume una jornada de edición de 8 horas: $100.000 ÷ 8 = $12.500 por hora. No incluye prestaciones, aportes o desplazamientos.</div>
 <div class="footer">BRANLY RUIZ · USO PERSONAL</div>
-</main>
+<dialog class="dialog" id="personDialog" aria-labelledby="personDialogTitle"><form id="personForm" class="dialog-body" method="dialog" novalidate><div class="dialog-top"><h2 id="personDialogTitle">Agregar profesional</h2><button type="button" class="dialog-close" id="closePerson" aria-label="Cerrar">×</button></div>
+<label class="field">Nombre del profesional<input id="personName" type="text" maxlength="60" required placeholder="Nombre o identificador"></label>
+<label class="field">Rol<select id="personRole"><option value="assistant">Asistente de luz</option><option value="camera">Camarógrafo</option><option value="edit">Edición</option></select></label>
+<label class="field" id="newPersonRateField">Valor hora del asistente (COP)<input id="personRate" type="number" inputmode="numeric" min="0" step="500" value="15000"></label>
+<p class="field-note" id="roleRateExplanation">Asistentes: tarifa individual editable.</p>
+<div class="dialog-actions"><button class="cancel" type="button" id="cancelPerson">Cancelar</button><button class="save" type="submit">Guardar profesional</button></div>
+<div class="dialog-actions" style="margin-top:8px"><button class="danger hidden" id="deletePerson" type="button">Eliminar profesional</button></div>
+</form></dialog></main>
 <script>
 (()=>{
-const types=[['Ordinaria diurna',0,'D'],['Ordinaria nocturna',.35,'N'],['Dominical / festiva diurna',.9,'F'],['Dominical / festiva nocturna',1.25,'FN'],['Extra diurna',.25,'ED'],['Extra nocturna',.75,'EN'],['Extra dominical / festiva diurna',1.15,'EFD'],['Extra dominical / festiva nocturna',1.65,'EFN']];
-const storage='branly_ruiz_luz_v3';const oldStorage='luz_calculadora_v2';
-const money=x=>new Intl.NumberFormat('es-CO',{style:'currency',currency:'COP',maximumFractionDigits:0}).format(x);
-const number=x=>new Intl.NumberFormat('es-CO',{maximumFractionDigits:2}).format(x);
-let state={base:15000,rows:[{id:1,type:0,hours:2}]},nextId=2;
-try{const saved=JSON.parse(localStorage.getItem(storage)||localStorage.getItem(oldStorage)||'null');if(saved&&Number.isFinite(saved.base)&&Array.isArray(saved.rows)){const rows=saved.rows.filter(r=>Number.isFinite(r.type)&&Number.isFinite(r.hours)).map((r,i)=>({id:i+1,type:Math.max(0,Math.min(7,r.type)),hours:Math.max(0,r.hours)}));if(rows.length){state={base:Math.max(0,saved.base),rows};nextId=rows.length+1;}}}catch{}
-const $=id=>document.getElementById(id);$('base').value=state.base;
-const subtotal=r=>state.base*(1+types[r.type][1])*r.hours;
-function persist(){try{localStorage.setItem(storage,JSON.stringify(state))}catch{}}
-function update(){let all=0,hrs=0;for(const r of state.rows){all+=subtotal(r);hrs+=r.hours;const entry=$('row-'+r.id);if(entry){entry.querySelector('.symbol').textContent=types[r.type][2];entry.querySelector('.meta').textContent=`+${Math.round(types[r.type][1]*100)} % · ${money(state.base*(1+types[r.type][1]))}/h`;entry.querySelector('.line-total strong').textContent=money(subtotal(r));entry.querySelector('.remove').disabled=state.rows.length===1;}}$('total').textContent=money(all);$('totalHours').textContent=number(hrs);$('totalLines').textContent=state.rows.length;$('count').textContent=state.rows.length===1?'1 línea':`${state.rows.length} líneas`;persist();}
-function render(){const holder=$('rows');holder.replaceChildren();state.rows.forEach((r,i)=>{const row=document.createElement('div');row.className='hour-row';row.id='row-'+r.id;const opts=types.map((t,index)=>`<option value="${index}" ${r.type===index?'selected':''}>${t[0]}</option>`).join('');row.innerHTML=`<div class="symbol" aria-hidden="true">${types[r.type][2]}</div><div class="type-col"><select aria-label="Tipo de recargo en línea ${i+1}">${opts}</select><div class="meta"></div></div><div class="hours-col"><label for="h-${r.id}">Horas</label><input id="h-${r.id}" type="number" min="0" step="0.5" inputmode="decimal" value="${r.hours}"></div><button class="remove" type="button" aria-label="Eliminar línea ${i+1}">×</button><div class="line-total"><span>Subtotal</span><strong></strong></div>`;row.querySelector('select').addEventListener('change',e=>{r.type=Number(e.target.value);update()});row.querySelector('input').addEventListener('input',e=>{r.hours=Math.max(0,Number(e.target.value)||0);update()});row.querySelector('.remove').addEventListener('click',()=>{if(state.rows.length>1){state.rows=state.rows.filter(x=>x.id!==r.id);render()}});holder.appendChild(row)});update()}
-$('base').addEventListener('input',e=>{state.base=Math.max(0,Number(e.target.value)||0);update()});
-$('add').addEventListener('click',()=>{state.rows.push({id:nextId++,type:1,hours:1});render();$('rows').lastElementChild.querySelector('select').focus();$('toast').textContent=''});
-$('reset').addEventListener('click',()=>{state={base:15000,rows:[{id:nextId++,type:0,hours:2}]};$('base').value=15000;render();$('toast').textContent='Calculadora reiniciada.'});
-$('print').addEventListener('click',()=>window.print());
-$('copy').addEventListener('click',async()=>{const items=state.rows.map((r,i)=>`${i+1}. ${types[r.type][0]}: ${number(r.hours)} h × ${money(state.base*(1+types[r.type][1]))} = ${money(subtotal(r))}`).join('\n');const result=`BRANLY RUIZ · ASISTENCIA DE LUZ\nValor hora: ${money(state.base)}\n\n${items}\n\nVALOR ASISTENCIA: ${money(state.rows.reduce((a,r)=>a+subtotal(r),0))}`;try{await navigator.clipboard.writeText(result);$('toast').textContent='Resumen copiado.'}catch{const ta=document.createElement('textarea');ta.value=result;document.body.appendChild(ta);ta.select();const ok=document.execCommand('copy');ta.remove();$('toast').textContent=ok?'Resumen copiado.':'No se pudo copiar. Usa Guardar PDF.'}});
-if('serviceWorker' in navigator && (location.protocol==='https:' || location.hostname==='localhost')){window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js').catch(()=>{}));}
+"use strict";
+const types=[["Ordinaria diurna",0,"D"],["Ordinaria nocturna",.35,"N"],["Dominical / festiva diurna",.9,"F"],["Dominical / festiva nocturna",1.25,"FN"],["Extra diurna",.25,"ED"],["Extra nocturna",.75,"EN"],["Extra dominical / festiva diurna",1.15,"EFD"],["Extra dominical / festiva nocturna",1.65,"EFN"]];
+const roleNames={assistant:"Asistente de luz",camera:"Camarógrafo",edit:"Edición"};
+const fixedRates={camera:60000,edit:12500};
+const KEY="branly_ruiz_equipo_v4",OLD=["branly_ruiz_luz_v3","luz_calculadora_v2"];
+const $=id=>document.getElementById(id);
+const money=n=>new Intl.NumberFormat("es-CO",{style:"currency",currency:"COP",maximumFractionDigits:0}).format(Number(n)||0);
+const qty=n=>new Intl.NumberFormat("es-CO",{maximumFractionDigits:2}).format(Number(n)||0);
+const uid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,8);
+const cleanName=n=>String(n||"").trim().slice(0,60);
+const validRows=rows=>Array.isArray(rows)?rows.slice(0,100).filter(r=>r&&Number.isFinite(Number(r.type))&&Number.isFinite(Number(r.hours))).map(r=>({id:uid(),type:Math.max(0,Math.min(7,Math.trunc(Number(r.type)))),hours:Math.max(0,Math.min(10000,Number(r.hours)))})):[];
+const defaultPerson=()=>({id:uid(),name:"Asistente de luz 1",role:"assistant",rate:15000,rows:[{id:uid(),type:0,hours:2}]});
+let state={people:[defaultPerson()],selected:null},filter="all",editing=null;
+state.selected=state.people[0].id;
+try{
+ const saved=JSON.parse(localStorage.getItem(KEY)||"null");
+ if(saved&&Array.isArray(saved.people)&&saved.people.length){
+  let people=saved.people.slice(0,150).filter(p=>p&&roleNames[p.role]).map(p=>({id:uid(),name:cleanName(p.name)||roleNames[p.role],role:p.role,rate:p.role==="assistant"?Math.max(0,Number(p.rate)||0):fixedRates[p.role],rows:validRows(p.rows)}));
+  people.forEach(p=>{if(!p.rows.length)p.rows=[{id:uid(),type:0,hours:0}]});
+  if(people.length){state.people=people;state.selected=people[0].id}
+ }else{
+  const older=OLD.map(key=>{try{return JSON.parse(localStorage.getItem(key)||"null")}catch{return null}}).find(v=>v&&Number.isFinite(v.base)&&Array.isArray(v.rows));
+  if(older){state.people=[{id:uid(),name:"Asistente de luz 1",role:"assistant",rate:Math.max(0,older.base),rows:validRows(older.rows)}];if(!state.people[0].rows.length)state.people[0].rows=[{id:uid(),type:0,hours:2}];state.selected=state.people[0].id;}
+ }
+}catch(err){console.warn("No se pudo leer el historial",err)}
+const selected=()=>state.people.find(p=>p.id===state.selected)||state.people[0];
+const rate=p=>p.role==="assistant"?p.rate:fixedRates[p.role];
+const subtotal=(p,r)=>rate(p)*(1+types[r.type][1])*r.hours;
+const personSum=p=>p.rows.reduce((s,r)=>s+subtotal(p,r),0);
+const hours=p=>p.rows.reduce((s,r)=>s+r.hours,0);
+const persist=()=>{try{localStorage.setItem(KEY,JSON.stringify({people:state.people}))}catch{}};
+function toast(s){$("toast").textContent=s}
+function totals(){
+ const p=selected(),overall=state.people.reduce((s,p)=>s+personSum(p),0),allHours=state.people.reduce((s,p)=>s+hours(p),0);
+ $("total").textContent=money(overall);$("personTotal").textContent=money(personSum(p));
+ $("totalPeople").textContent=state.people.length;$("totalHours").textContent=qty(allHours);
+ $("crewCount").textContent=state.people.length===1?"1 profesional":state.people.length+" profesionales";
+ $("count").textContent=p.rows.length===1?"1 línea":p.rows.length+" líneas";
+ p.rows.forEach(r=>{const e=$("row-"+r.id);if(!e)return;e.querySelector(".meta").textContent="+"+Math.round(types[r.type][1]*100)+" % · "+money(rate(p)*(1+types[r.type][1]))+"/h";e.querySelector(".line-total strong").textContent=money(subtotal(p,r));e.querySelector(".remove").disabled=p.rows.length===1});
+ persist();
+}
+function crew(){
+ const holder=$("crewList");holder.replaceChildren();
+ const people=state.people.filter(p=>filter==="all"||p.role===filter);
+ if(!people.length){holder.innerHTML='<div class="empty-filter">Todavía no hay profesionales de este rol. Puedes agregar uno con el botón superior.</div>';return;}
+ people.forEach(p=>{
+  const b=document.createElement("button");b.type="button";b.className="person-card"+(state.selected===p.id?" selected":"");b.dataset.role=p.role;
+  b.setAttribute("aria-pressed",String(state.selected===p.id));
+  b.innerHTML='<span class="person-symbol">'+({assistant:"LU",camera:"CAM",edit:"ED"}[p.role])+'</span><span class="person-main"><strong></strong><small></small></span><strong class="person-price"></strong>';
+  b.querySelector(".person-main strong").textContent=p.name;
+  b.querySelector(".person-main small").textContent=roleNames[p.role]+" · "+money(rate(p))+"/h";
+  b.querySelector(".person-price").textContent=money(personSum(p));
+  b.addEventListener("click",()=>{state.selected=p.id;render()});
+  holder.appendChild(b);
+ });
+}
+function render(){
+ const p=selected();if(!p)return;
+ $("selectedName").textContent=p.name;$("selectedRole").textContent=roleNames[p.role];
+ $("assistantTariff").classList.toggle("hidden",p.role!=="assistant");
+ $("fixedTariff").classList.toggle("hidden",p.role==="assistant");
+ $("tariffHelp").classList.toggle("hidden",p.role!=="assistant");
+ $("base").value=p.rate;
+ $("fixedRate").textContent=money(rate(p));
+ $("fixedRateNote").textContent=p.role==="edit"?"$100.000 por jornada de 8 horas":"$60.000 por hora de cámara";
+ const holder=$("rows");holder.replaceChildren();
+ p.rows.forEach((r,i)=>{
+  const row=document.createElement("div");row.id="row-"+r.id;row.className="hour-row";
+  row.innerHTML='<div class="symbol" aria-hidden="true">'+types[r.type][2]+'</div><div class="type-col"><select aria-label="Recargo de la línea '+(i+1)+'">'+types.map((t,j)=>'<option value="'+j+'" '+(r.type===j?"selected":"")+'>'+t[0]+'</option>').join("")+'</select><div class="meta"></div></div><div class="hours-col"><label for="hour-'+r.id+'">Horas</label><input id="hour-'+r.id+'" type="number" inputmode="decimal" min="0" step=".5" value="'+r.hours+'"></div><button type="button" class="remove" aria-label="Eliminar línea '+(i+1)+'">×</button><div class="line-total"><span>Subtotal</span><strong></strong></div>';
+  row.querySelector("select").addEventListener("change",e=>{r.type=Math.max(0,Math.min(7,Number(e.target.value)||0));update()});
+  row.querySelector("input").addEventListener("input",e=>{r.hours=Math.max(0,Number(e.target.value)||0);update()});
+  row.querySelector(".remove").addEventListener("click",()=>{if(p.rows.length===1)return;p.rows=p.rows.filter(x=>x.id!==r.id);render()});
+  holder.appendChild(row);
+ });
+ crew();totals();
+}
+function update(){const p=selected();if(!p)return;crew();totals()}
+function syncRoleForm(){
+ const role=$("personRole").value;
+ $("newPersonRateField").classList.toggle("hidden",role!=="assistant");
+ $("roleRateExplanation").textContent=role==="assistant"?"La tarifa por hora se puede editar para cada asistente.":role==="camera"?"Tarifa fija: $60.000 por hora.": "Tarifa fija: $100.000 por jornada de 8 horas, equivalente a $12.500 por hora.";
+}
+function openPerson(p=null){
+ editing=p?.id||null;
+ $("personDialogTitle").textContent=p?"Editar profesional":"Nuevo profesional";
+ $("personName").value=p?.name||"";
+ $("personRole").value=p?.role||"assistant";
+ $("personRate").value=p?.rate??15000;
+ $("deletePerson").classList.toggle("hidden",!p||state.people.length<=1);
+ syncRoleForm();
+ $("personDialog").showModal();
+}
+function savePerson(e){
+ e.preventDefault();let name=cleanName($("personName").value),role=$("personRole").value;
+ const value=Number($("personRate").value);
+ if(!name){toast("Escribe un nombre para el profesional.");$("personName").focus();return}
+ if(!roleNames[role])return;
+ if(role==="assistant"&&(!Number.isFinite(value)||value<0)){toast("Introduce una tarifa válida.");return}
+ if(editing){
+  const p=state.people.find(x=>x.id===editing);
+  if(!p)return;
+  p.name=name;p.role=role;p.rate=role==="assistant"?value:fixedRates[role];
+  state.selected=p.id;
+ }else{
+  const p={id:uid(),name,role,rate:role==="assistant"?value:fixedRates[role],rows:[{id:uid(),type:0,hours:role==="edit"?8:2}]};
+  state.people.push(p);state.selected=p.id;
+ }
+ filter="all";$("roleFilter").value="all";
+ $("personDialog").close();render();toast(editing?"Profesional actualizado.":"Profesional agregado.");
+}
+$("roleFilter").addEventListener("change",e=>{filter=e.target.value;const visible=state.people.filter(p=>filter==="all"||p.role===filter);if(visible.length&&!visible.some(p=>p.id===state.selected))state.selected=visible[0].id;render()});
+$("addPerson").addEventListener("click",()=>openPerson());
+$("editPerson").addEventListener("click",()=>openPerson(selected()));
+$("personRole").addEventListener("change",syncRoleForm);
+$("personForm").addEventListener("submit",savePerson);
+$("closePerson").addEventListener("click",()=>$("personDialog").close());
+$("cancelPerson").addEventListener("click",()=>$("personDialog").close());
+$("deletePerson").addEventListener("click",()=>{if(state.people.length===1)return;const p=selected();if(!confirm("¿Eliminar a "+p.name+" y sus bloques de horas?"))return;state.people=state.people.filter(x=>x.id!==p.id);state.selected=state.people[0].id;filter="all";$("roleFilter").value="all";$("personDialog").close();render();toast("Profesional eliminado.")});
+$("base").addEventListener("input",e=>{const p=selected();if(p.role!=="assistant")return;p.rate=Math.max(0,Number(e.target.value)||0);update()});
+$("add").addEventListener("click",()=>{const p=selected();p.rows.push({id:uid(),type:1,hours:1});render();$("rows").lastElementChild.querySelector("select").focus()});
+$("reset").addEventListener("click",()=>{if(!confirm("¿Reiniciar jornadas y profesionales?"))return;state.people=[defaultPerson()];state.selected=state.people[0].id;filter="all";$("roleFilter").value="all";render();toast("Calculadora reiniciada.")});
+$("print").addEventListener("click",()=>window.print());
+$("copy").addEventListener("click",async()=>{const parts=state.people.map(p=>p.name+" · "+roleNames[p.role]+" · "+money(rate(p))+"/h\n"+p.rows.map((r,i)=>(i+1)+". "+types[r.type][0]+": "+qty(r.hours)+" h × "+money(rate(p)*(1+types[r.type][1]))+" = "+money(subtotal(p,r))).join("\n")+"\nSubtotal: "+money(personSum(p)));const summary="BRANLY RUIZ · EQUIPO AUDIOVISUAL\n\n"+parts.join("\n\n")+"\n\nTOTAL PRODUCCIÓN: "+money(state.people.reduce((s,p)=>s+personSum(p),0));try{await navigator.clipboard.writeText(summary);toast("Resumen copiado.")}catch{const ta=document.createElement("textarea");ta.value=summary;document.body.appendChild(ta);ta.select();const ok=document.execCommand("copy");ta.remove();toast(ok?"Resumen copiado.":"No se pudo copiar.")}});
+if("serviceWorker" in navigator&&(location.protocol==="https:"||location.hostname==="localhost"))window.addEventListener("load",()=>navigator.serviceWorker.register("./sw.js").catch(()=>{}));
 render();
 })();
 </script>
