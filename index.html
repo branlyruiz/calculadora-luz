@@ -197,16 +197,16 @@ function totals(){
  const p=selected(),overall=state.people.reduce((s,p)=>s+personSum(p),0),allHours=state.people.reduce((s,p)=>s+hours(p),0);
  $("total").textContent=money(overall);$("personTotal").textContent=money(personSum(p));
  $("totalPeople").textContent=state.people.length;$("totalHours").textContent=qty(allHours);
- $("crewCount").textContent=state.people.length===1?"1 profesional":state.people.length+" profesionales";
- $("count").textContent=p.rows.length===1?"1 línea":p.rows.length+" líneas";
- p.rows.forEach(r=>{const e=$("row-"+r.id);if(!e)return;e.querySelector(".meta").textContent="+"+Math.round(types[r.type][1]*100)+" % · "+money(rate(p)*(1+types[r.type][1]))+"/h";e.querySelector(".line-total strong").textContent=money(subtotal(p,r));e.querySelector(".remove").disabled=p.rows.length===1});
+ $("crewCount").textContent=state.people.length===1?"1 ítem":state.people.length+" ítems";
+ $("count").textContent=expenseRole(p.role)?roleNames[p.role]:(p.rows.length===1?"1 línea":p.rows.length+" líneas");
+ if(!expenseRole(p.role))p.rows.forEach(r=>{const e=$("row-"+r.id);if(!e)return;e.querySelector(".meta").textContent="+"+Math.round(types[r.type][1]*100)+" % · "+money(rate(p)*(1+types[r.type][1]))+"/h";e.querySelector(".line-total strong").textContent=money(subtotal(p,r));e.querySelector(".remove").disabled=p.rows.length===1});
  persist();
 }
 let revealedPerson=null;
 function deleteCrewPerson(id){
  const p=state.people.find(person=>person.id===id);
  if(!p||state.people.length<=1)return;
- if(!confirm("¿Eliminar a "+p.name+" y sus horas?"))return;
+ if(!confirm("¿Eliminar "+p.name+" del presupuesto?"))return;
  state.people=state.people.filter(person=>person.id!==id);
  if(state.selected===id)state.selected=state.people[0].id;
  revealedPerson=null;
@@ -216,20 +216,20 @@ function deleteCrewPerson(id){
 function crew(){
  const holder=$("crewList");holder.replaceChildren();
  const people=state.people.filter(p=>filter==="all"||p.role===filter);
- if(!people.length){holder.innerHTML='<div class="empty-filter">No hay profesionales de este rol.</div>';return}
+ if(!people.length){holder.innerHTML='<div class="empty-filter">Sin ítems en esta categoría.</div>';return}
  if(revealedPerson&&!people.some(p=>p.id===revealedPerson))revealedPerson=null;
  people.forEach(p=>{
   const wrap=document.createElement("div");wrap.className="swipe-wrap"+(revealedPerson===p.id?" revealed":"");
   const del=document.createElement("button");del.type="button";del.className="swipe-delete";del.textContent="Eliminar";
-  del.setAttribute("aria-label","Eliminar a "+p.name);
+  del.setAttribute("aria-label","Eliminar "+p.name);
   del.disabled=state.people.length<=1;
   del.addEventListener("click",()=>deleteCrewPerson(p.id));
   const b=document.createElement("button");b.type="button";b.className="person-card"+(state.selected===p.id?" selected":"");b.dataset.role=p.role;
   b.setAttribute("aria-pressed",String(state.selected===p.id));
   b.setAttribute("aria-label",p.name+", "+roleNames[p.role]+", subtotal "+money(personSum(p))+". Desliza a la izquierda para eliminar.");
-  b.innerHTML='<span class="person-symbol">'+({assistant:"LU",camera:"CAM",edit:"ED"}[p.role])+'</span><span class="person-main"><strong></strong><small></small></span><strong class="person-price"></strong>';
+  b.innerHTML='<span class="person-symbol">'+symbols[p.role]+'</span><span class="person-main"><strong></strong><small></small></span><strong class="person-price"></strong>';
   b.querySelector(".person-main strong").textContent=p.name;
-  b.querySelector(".person-main small").textContent=roleNames[p.role];
+  b.querySelector(".person-main small").textContent=expenseRole(p.role)?qty(p.quantity??1)+" "+quantities[p.role].toLowerCase()+(["food","lodging"].includes(p.role)?" × "+qty(p.persons??1)+" pers.":""):roleNames[p.role];
   b.querySelector(".person-price").textContent=money(personSum(p));
   let startX=0,startY=0,gesture=false,ignoreClick=false;
   b.addEventListener("pointerdown",e=>{if(e.isPrimary===false)return;startX=e.clientX;startY=e.clientY;gesture=true;ignoreClick=false});
@@ -258,6 +258,18 @@ function crew(){
 }
 function render(){
  const p=selected();if(!p)return;
+ const expense=expenseRole(p.role);
+ $("personSection").classList.toggle("hidden",expense);
+ $("expenseSection").classList.toggle("hidden",!expense);
+ $("detailHeading").textContent=expense?"Gasto":"Jornada";
+ if(expense){
+  $("expenseRate").value=rate(p);
+  $("expenseQuantity").value=p.quantity??1;
+  $("expensePersons").value=p.persons??1;
+  $("quantityLabel").textContent=quantities[p.role];
+  $("personsField").classList.toggle("hidden",!["food","lodging"].includes(p.role));
+  $("expenseFormula").textContent=qty(p.quantity??1)+(p.role==="transport"?" días":(["food","lodging"].includes(p.role)?" × "+qty(p.persons??1)+" personas":" unidades"))+" × "+money(rate(p));
+ }
  $("selectedName").textContent=p.name;$("selectedRole").textContent=roleNames[p.role];
  $("assistantTariff").classList.toggle("hidden",p.role!=="assistant");
  $("fixedTariff").classList.toggle("hidden",p.role==="assistant");
@@ -266,7 +278,7 @@ function render(){
  $("fixedRate").textContent=money(rate(p));
  $("fixedRateNote").textContent=p.role==="edit"?"$100.000 por jornada de 8 horas":"$60.000 por hora de cámara";
  const holder=$("rows");holder.replaceChildren();
- p.rows.forEach((r,i)=>{
+ if(!expense)p.rows.forEach((r,i)=>{
   const row=document.createElement("div");row.id="row-"+r.id;row.className="hour-row";
   row.innerHTML='<div class="symbol" aria-hidden="true">'+types[r.type][2]+'</div><div class="type-col"><select aria-label="Recargo de la línea '+(i+1)+'">'+types.map((t,j)=>'<option value="'+j+'" '+(r.type===j?"selected":"")+'>'+t[0]+'</option>').join("")+'</select><div class="meta"></div></div><div class="hours-col"><label for="hour-'+r.id+'">Horas</label><input id="hour-'+r.id+'" type="number" inputmode="decimal" min="0" step=".5" value="'+r.hours+'"></div><button type="button" class="remove" aria-label="Eliminar línea '+(i+1)+'">×</button><div class="line-total"><span>Subtotal</span><strong></strong></div>';
   row.querySelector("select").addEventListener("change",e=>{r.type=Math.max(0,Math.min(7,Number(e.target.value)||0));update()});
